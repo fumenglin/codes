@@ -62,6 +62,8 @@ class RequestObject(object):
         try:
             self.log.info(u'get web url:%s' % url)
             return self.request(url, method='GET', **kwargs)
+        except:
+            return None
         finally:
             t = time.time() - t1
             self.log.info(u'该次get请求耗时：%d秒' % int(t))

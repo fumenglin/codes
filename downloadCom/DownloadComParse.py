@@ -126,6 +126,8 @@ class DownloadComParse(object):
         :param html:
         :return:
         '''
+        if not response:
+            return
         html = response.text
         url = response.url
         detail_tree = etree.HTML(html)
@@ -146,10 +148,11 @@ class DownloadComParse(object):
         if userreviewstree:
             userreviewstree = userreviewstree[0]
             avrg = ''.join(map(f, userreviewstree.xpath('./a//text()')))
-            avrg = str(avrg) if avrg and re.search('\d', avrg) else '0'
+            avrg = re.search('(\d+\.*\d*)',avrg).group(1) if re.search('(\d+)',avrg) else '0'
             votes = ''.join(userreviewstree.xpath("./p/text()"))
             votes = re.search('(\d+)', votes).group(1) if re.search('(\d+)', votes) else '0'
             stars = ','.join(map(f, userreviewstree.xpath('.//*[@class="percent"]/text()')))
+            stars = stars if stars else '0,0,0,0,0'
             UserReviews = avrg + ',' + votes + ',' + stars
         else:
             UserReviews = ','.join(['0', '0', '0', '0', '0', '0', '0'])
