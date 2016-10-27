@@ -32,7 +32,8 @@ HEADERS = {
     'Accept-Language': 'zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3',
     'Accept-Encoding': 'gzip, deflate'
 }
-KEYS = [u'url', u'Publisher', u'Publisherwebsite', u'ReleaseDate', u'DateAdded', u'Version',  # Genral
+KEYS = [u'url', u'name',  # 额外添加 url,正式名
+        u'Publisher', u'Publisherwebsite', u'ReleaseDate', u'DateAdded', u'Version',  # Genral
         u'Category', u'Subcategory',  # Category
         u'OperatingSystems', u'AdditionalRequirements',  # Operating Systems
         u'FileSize', u'FileName',  # Download Information
@@ -97,6 +98,16 @@ class DownloadComParse(object):
         temp = re.sub(ur'[\x00-\x20]', '', unicode(ss))
         return temp
 
+    def remove_all_space_char2(self, ss):
+        '''
+        去掉另类不可见字符
+        :param ss:
+        :return:
+        '''
+        f = lambda x: x.strip()
+        temp = ' '.join(map(f, ss.split()))
+        return temp
+
     def getPageHtml(self, url):
         '''
         获取页面html
@@ -122,15 +133,15 @@ class DownloadComParse(object):
         f = lambda x: x.strip()
         dict_ = dict()
         dict_['url'] = url
+        name = ''.join(detail_tree.xpath('.//*[@class="OneLinkNoTx"][1]/text()'))
+        dict_['name'] = name
         for tail in details:
             if len(tail.xpath('./td')) == 2:
                 k = self.remove_all_space_char(''.join(map(f, tail.xpath('./td[1]/text()'))))
-                v = ''.join(map(f, tail.xpath('./td[2]//text()')))
-                dict_[k] = v.replace(',', '，')
-        ft = lambda x: ' '.join(x.split()).strip()
-        PublishersDescription = ' '.join(
-            filter(lambda x: x, map(ft, detail_tree.xpath(".//*[@id='product-info']//text()")))).replace(
-            ',', '，')
+                v = ''.join(map(f, tail.xpath('./td[2]//text()'))).replace(',', '，')
+                dict_[k] = self.remove_all_space_char2(v)
+        PublishersDescriptionstr = ''.join(detail_tree.xpath(".//*[@id='product-info']//p/text()")).replace(',', '，')
+        PublishersDescription = self.remove_all_space_char2(PublishersDescriptionstr)
         userreviewstree = detail_tree.xpath(".//*[@class='userRateModule'][2]")
         if userreviewstree:
             userreviewstree = userreviewstree[0]
@@ -181,5 +192,9 @@ class DownloadComParse(object):
 
 
 if __name__ == '__main__':
-    loop = DownloadComParse(flag=sys.argv[1])
+    if len(sys.argv) > 1:
+        flag = sys.argv[1]
+    else:
+        flag = 'windows'
+    loop = DownloadComParse(flag=flag)
     loop.start()

@@ -132,5 +132,9 @@ class DownloadComUrls(object):
 
 
 if __name__ == '__main__':
-    loop = DownloadComUrls(flag=sys.argv[1])
+    if len(sys.argv) > 1:
+        flag = sys.argv[1]
+    else:
+        flag = 'windows'
+    loop = DownloadComUrls(flag=flag)
     loop.start()
