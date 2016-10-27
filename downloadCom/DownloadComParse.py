@@ -132,9 +132,9 @@ class DownloadComParse(object):
         details = detail_tree.xpath('.//*[@class="specs-details"]//tr')
         f = lambda x: x.strip()
         dict_ = dict()
-        dict_['url'] = url
+        dict_['url'] = url.replace(',', '，')
         name = ''.join(detail_tree.xpath('.//*[@class="OneLinkNoTx"][1]/text()'))
-        dict_['name'] = name
+        dict_['name'] = name.replace(',', '，')
         for tail in details:
             if len(tail.xpath('./td')) == 2:
                 k = self.remove_all_space_char(''.join(map(f, tail.xpath('./td[1]/text()'))))
